@@ -10,34 +10,47 @@ namespace FlappyBirdAI
 {
     public class Pipe : Sprite
     {
-        public float BottomPipe { get; private set; }
-        private float pipeGap;
-        private float speed;
-        private float yStartPos;
+        public float BottomPipeHeight { get; private set; }
+        public float YStartPos { get; private set; }
 
-        public Pipe(Vector2 position, float scale, Texture2D texture, float speed, int pipeHeightMin, int pipeHeightMax, int gap, float yStartPos)
+        private readonly float pipeGap;
+        private readonly float speed;
+        private Vector2 startingPos;
+        public Rectangle BottomPipe { get; private set; }
+        public Rectangle TopPipe { get; private set; }
+
+        public Pipe(Vector2 startPos, Vector2 position, float scale, Texture2D texture, float speed, int pipeHeightMin, int pipeHeightMax, int gap, float yStartPos)
             : base(texture, position, Color.White, SpriteEffects.None, scale, 0, new Rectangle(0, 0, texture.Width, texture.Height), Vector2.Zero)
         {
             this.speed = speed;
             RandomizePipe(pipeHeightMin, pipeHeightMax, gap);
             pipeGap = gap;
-            this.yStartPos = yStartPos;
+            YStartPos = yStartPos;
+            startingPos = startPos;
+            BottomPipe = new Rectangle((int)position.X, (int)(YStartPos + BottomPipeHeight - (texture.Height * scale)), (int)(texture.Width * scale), (int)(texture.Height * scale));
+            TopPipe = new Rectangle((int)position.X, (int)(YStartPos + BottomPipeHeight + pipeGap), (int)(texture.Width * scale), (int)(texture.Height * scale));
         }
 
         private void RandomizePipe(int pipeHeightMin, int pipeHeightMax, int gap)
         {
             Random random = new Random();
-            BottomPipe = random.Next(pipeHeightMin, pipeHeightMax);
-        }
-
-        public float GetXPos()
-        {
-            return position.X;
+            BottomPipeHeight = random.Next(pipeHeightMin, pipeHeightMax);
         }
 
         public void Update()
         {
-            position = new Vector2(position.X -= speed, position.Y);
+            Position = new Vector2(Position.X - speed, Position.Y);
+            
+            if(Position.X + (texture.Width * scale) < 0)
+            {
+                Position = startingPos;
+            }
+        }
+
+        public override void Draw(SpriteBatch sp)
+        {
+            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight), sourceRectangle, color, rotation, new Vector2(0, texture.Height), scale, SpriteEffects.None, 1);
+            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight + pipeGap), sourceRectangle, color, rotation, Vector2.Zero, scale, SpriteEffects.FlipVertically, 1);
         }
     }
 }

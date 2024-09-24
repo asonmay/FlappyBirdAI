@@ -9,7 +9,7 @@ namespace FlappyBirdAI
     public class Sprite
     {
         protected Texture2D texture;
-        protected Vector2 position;
+        public Vector2 Position { get; set; }
         protected Color color;
         protected SpriteEffects effects;
         protected float scale;
@@ -20,14 +20,14 @@ namespace FlappyBirdAI
         {
             get
             {
-                return new Rectangle((int)position.X, (int)position.Y, sourceRectangle.Width, sourceRectangle.Height);
+                return new Rectangle((int)Position.X, (int)Position.Y, sourceRectangle.Width, sourceRectangle.Height);
             }
         }
 
         public Sprite (Texture2D texture, Vector2 position, Color color, SpriteEffects effects, float scale, float rotation, Rectangle sourceRectangle, Vector2 origin)
         {
             this.texture = texture;
-            this.position = position;
+            this.Position = position;
             this.color = color;
             this.scale = scale;
             this.sourceRectangle = sourceRectangle;
@@ -36,9 +36,9 @@ namespace FlappyBirdAI
             this.effects = effects;
         }
 
-        public void Draw(SpriteBatch sp)
+        public virtual void Draw(SpriteBatch sp)
         {
-            sp.Draw(texture, position, sourceRectangle, color, rotation, origin, scale, effects, 1);
+            sp.Draw(texture, Position, sourceRectangle, color, rotation, origin, scale, effects, 1);
         }
     }
 }

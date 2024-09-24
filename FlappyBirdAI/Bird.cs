@@ -14,12 +14,14 @@ namespace FlappyBirdAI
         public NeuralNetwork Network { get; set; }
         public double Fitness { get; private set; }
         public bool isDead { get; private set; }
+        private TimeSpan jumpTimer;
+        private TimeSpan jumpInBetween;
 
         private float yVelocity;
-        private float gravity;
-        private float jumpPower;
+        private readonly float gravity;
+        private readonly float jumpPower;
 
-        public Bird(NeuralNetwork network, Vector2 position, float scale, Texture2D texture, float yVelocity, float gravity, float jumpPower)
+        public Bird(NeuralNetwork network, Vector2 position, float scale, Texture2D texture, float yVelocity, float gravity, float jumpPower, TimeSpan jumpInBetween)
             : base(texture, position, Color.White, SpriteEffects.None, scale, 0, new Rectangle(0, 0, texture.Width, texture.Height), Vector2.Zero)
         {
             Network = network;
@@ -27,11 +29,13 @@ namespace FlappyBirdAI
             this.gravity = gravity;
             isDead = false;
             this.jumpPower = jumpPower;
+            this.jumpInBetween = jumpInBetween;
+            jumpTimer = TimeSpan.Zero;
         }
 
         private float Filter(double value)
         {
-            if(value < 0.5)
+            if(value < 0)
             {
                 return 0f;
             }
@@ -41,17 +45,28 @@ namespace FlappyBirdAI
             }
         }
 
-        public void Update(double[] inputs, GameTime gameTime)
+        public void Update(double[] inputs, GameTime gameTime, Pipe pipe)
         {
             float raw = (float)Network.Compute(inputs)[0];
             float filtered = Filter(raw);
-            if(filtered == 1)
+            jumpTimer += gameTime.ElapsedGameTime;
+            if (filtered == 1 && jumpTimer.Milliseconds >= jumpInBetween.Milliseconds)
             {
                 yVelocity += jumpPower;
+                jumpTimer = TimeSpan.Zero;
             }
+
             yVelocity -= gravity;
-            position = new Vector2(position.X, position.Y + yVelocity);
-            Fitness += gameTime.ElapsedGameTime.TotalMilliseconds;
+            Position = new Vector2(Position.X, Position.Y - yVelocity);
+            if(!isDead)
+            {
+                Fitness += gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+
+            if(Position.Y <= 0 || pipe.BottomPipe.Intersects(Hitbox) || pipe.TopPipe.Intersects(Hitbox))
+            {
+                isDead = true;
+            }
         }
     }
 }
