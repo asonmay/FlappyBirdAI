@@ -20,7 +20,7 @@ namespace FlappyBirdAI
         {
             get
             {
-                return new Rectangle((int)Position.X, (int)Position.Y, sourceRectangle.Width, sourceRectangle.Height);
+                return new Rectangle((int)Position.X, (int)Position.Y, (int)(sourceRectangle.Width * scale), (int)(sourceRectangle.Height * scale));
             }
         }
 

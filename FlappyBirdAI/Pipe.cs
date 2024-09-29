@@ -40,8 +40,10 @@ namespace FlappyBirdAI
         public void Update()
         {
             Position = new Vector2(Position.X - speed, Position.Y);
-            
-            if(Position.X + (texture.Width * scale) < 0)
+            BottomPipe = new Rectangle((int)Position.X, (int)(YStartPos + BottomPipeHeight - (texture.Height * scale)), (int)(texture.Width * scale), (int)(texture.Height * scale));
+            TopPipe = new Rectangle((int)Position.X, (int)(YStartPos + BottomPipeHeight + pipeGap), (int)(texture.Width * scale), (int)(texture.Height * scale));
+
+            if (Position.X + (texture.Width * scale) < 0)
             {
                 Position = startingPos;
             }

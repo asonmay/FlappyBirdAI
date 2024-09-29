@@ -13,7 +13,7 @@ namespace FlappyBirdAI
     {
         public NeuralNetwork Network { get; set; }
         public double Fitness { get; private set; }
-        public bool isDead { get; private set; }
+        public bool isDead { get; set; }
         private TimeSpan jumpTimer;
         private TimeSpan jumpInBetween;
 
@@ -33,9 +33,15 @@ namespace FlappyBirdAI
             jumpTimer = TimeSpan.Zero;
         }
 
+        public void ResetBird()
+        {
+            isDead = false;
+            yVelocity = 0;
+        }
+
         private float Filter(double value)
         {
-            if(value < 0)
+            if(value < 1)
             {
                 return 0f;
             }
@@ -45,27 +51,28 @@ namespace FlappyBirdAI
             }
         }
 
-        public void Update(double[] inputs, GameTime gameTime, Pipe pipe)
+        public void Update(double[] inputs, GameTime gameTime, Pipe pipe, Viewport viewport)
         {
-            float raw = (float)Network.Compute(inputs)[0];
-            float filtered = Filter(raw);
-            jumpTimer += gameTime.ElapsedGameTime;
-            if (filtered == 1 && jumpTimer.Milliseconds >= jumpInBetween.Milliseconds)
+            if (!isDead)
             {
-                yVelocity += jumpPower;
-                jumpTimer = TimeSpan.Zero;
-            }
+                float raw = (float)Network.Compute(inputs)[0];
+                float filtered = Filter(raw);
+                jumpTimer += gameTime.ElapsedGameTime;
+                if (filtered == 1 && jumpTimer.Milliseconds >= jumpInBetween.Milliseconds)
+                {
+                    yVelocity += jumpPower;
+                    jumpTimer = TimeSpan.Zero;
+                }
 
-            yVelocity -= gravity;
-            Position = new Vector2(Position.X, Position.Y - yVelocity);
-            if(!isDead)
-            {
+                yVelocity -= gravity;
+                Position = new Vector2(Position.X, Position.Y - yVelocity);
                 Fitness += gameTime.ElapsedGameTime.TotalMilliseconds;
-            }
+                
 
-            if(Position.Y <= 0 || pipe.BottomPipe.Intersects(Hitbox) || pipe.TopPipe.Intersects(Hitbox))
-            {
-                isDead = true;
+                if (Position.Y <= 0 || pipe.BottomPipe.Intersects(Hitbox) || pipe.TopPipe.Intersects(Hitbox) || Position.Y > viewport.Height)
+                {
+                    isDead = true;
+                }
             }
         }
     }
