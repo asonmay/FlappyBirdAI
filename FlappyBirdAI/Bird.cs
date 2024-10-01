@@ -9,10 +9,10 @@ using NeuralNetworkLibrary;
 
 namespace FlappyBirdAI
 {
-    public class Bird : Sprite
+    public class Bird : Sprite, INeuralNetwork
     {
         public NeuralNetwork Network { get; set; }
-        public double Fitness { get; private set; }
+        public double Fitness { get; set; }
         public bool isDead { get; set; }
         private TimeSpan jumpTimer;
         private TimeSpan jumpInBetween;
@@ -33,22 +33,12 @@ namespace FlappyBirdAI
             jumpTimer = TimeSpan.Zero;
         }
 
-        public void ResetBird()
+        public void Reset()
         {
+            Random random = new Random();
             isDead = false;
+            Position = new Vector2(100, random.Next(50, 500));
             yVelocity = 0;
-        }
-
-        private float Filter(double value)
-        {
-            if(value < 1)
-            {
-                return 0f;
-            }
-            else
-            {
-                return 1f;
-            }
         }
 
         public void Update(double[] inputs, GameTime gameTime, Pipe pipe, Viewport viewport)
@@ -56,9 +46,8 @@ namespace FlappyBirdAI
             if (!isDead)
             {
                 float raw = (float)Network.Compute(inputs)[0];
-                float filtered = Filter(raw);
                 jumpTimer += gameTime.ElapsedGameTime;
-                if (filtered == 1 && jumpTimer.Milliseconds >= jumpInBetween.Milliseconds)
+                if (raw > 0 && jumpTimer.Milliseconds >= jumpInBetween.Milliseconds)
                 {
                     yVelocity += jumpPower;
                     jumpTimer = TimeSpan.Zero;
@@ -69,7 +58,12 @@ namespace FlappyBirdAI
                 Fitness += gameTime.ElapsedGameTime.TotalMilliseconds;
                 
 
-                if (Position.Y <= 0 || pipe.BottomPipe.Intersects(Hitbox) || pipe.TopPipe.Intersects(Hitbox) || Position.Y > viewport.Height)
+                if (Position.Y <= 0 || Position.Y > viewport.Height)
+                {
+                    isDead = true;
+                    Fitness -= 1000;
+                }
+                else if(pipe.BottomPipe.Intersects(Hitbox) || pipe.TopPipe.Intersects(Hitbox))
                 {
                     isDead = true;
                 }

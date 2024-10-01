@@ -13,13 +13,14 @@ namespace FlappyBirdAI
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        private Bird[] birds;
         private Pipe[] pipes;
         private Texture2D birdTexture;
         private Texture2D pipeTexture;
         private Texture2D background;
         private int generation;
         private double mutationRate;
+        private int speed;
+        private GeneticTrainer<Bird> trainer;
 
         public Game1()
         {
@@ -49,14 +50,17 @@ namespace FlappyBirdAI
 
             generation = 1;
             birdTexture = Content.Load<Texture2D>("bird");
-            birds = new Bird[100];
+
+            Bird[] birds = new Bird[100];
             for(int i = 0; i < birds.Length; i++)
             {
                 birds[i] = new Bird(new NeuralNetwork(activationFunc, errorFunc, 2, 4, 1), new Vector2(100, random.Next(50,600)), 0.3f, birdTexture, 0, 0.4f, 8, TimeSpan.FromMilliseconds(250));
                 birds[i].Network.Randomize(random, 0, 2);
             }
+            speed = 10;
+            mutationRate = 0.5;
 
-            mutationRate = 0.1;
+            trainer = new GeneticTrainer<Bird>(-10, 10,mutationRate, birds);
         }
 
         private void ResetPipes()
@@ -85,19 +89,19 @@ namespace FlappyBirdAI
 
         private bool UpdateBirds(GameTime gametime)
         {
-            for(int i = 0; i < birds.Length; i++)
+            for(int i = 0; i < trainer.Networks.Length; i++)
             {
-                Pipe pipe = GetClosestPipe(birds[i]);
-                birds[i].Update([Math.Abs(birds[i].Position.X - pipe.Position.X), pipe.YStartPos + pipe.BottomPipeHeight], gametime, pipe, GraphicsDevice.Viewport);
+                Pipe pipe = GetClosestPipe(trainer.Networks[i]);
+                trainer.Networks[i].Update([Math.Abs(trainer.Networks[i].Position.X - pipe.Position.X), Math.Abs(pipe.YStartPos + pipe.BottomPipeHeight - trainer.Networks[i].Position.Y)], gametime, pipe, GraphicsDevice.Viewport);
             }
             return AreAllDead();
         }
 
         private bool AreAllDead()
         {
-            for(int i = 0; i < birds.Length; i++)
+            for(int i = 0; i < trainer.Networks.Length; i++)
             {
-                if (!birds[i].isDead)
+                if (!trainer.Networks[i].isDead)
                 {
                     return false;
                 }
@@ -118,27 +122,6 @@ namespace FlappyBirdAI
             return closest;
         }
 
-        public void Crossover(NeuralNetwork winner, NeuralNetwork loser, Random random)
-        {
-            for (int i = 0; i < winner.Layers.Length; i++)
-            {
-                Layer winLayer = winner.Layers[i];
-                Layer childLayer = loser.Layers[i];
-
-                int cutPoint = random.Next(winLayer.Neurons.Length); 
-                bool flip = random.Next(2) == 0; 
-
-                for (int j = (flip ? 0 : cutPoint); j < (flip ? cutPoint : winLayer.Neurons.Length); j++)
-                {
-                    Neuron winNeuron = winLayer.Neurons[j];
-                    Neuron childNeuron = childLayer.Neurons[j];
-
-                    SwapWeights(childNeuron, winNeuron);
-                    childNeuron.Bias = winNeuron.Bias;
-                }
-            }
-        }
-
         private void SwapWeights(Neuron one, Neuron two)
         {
             for(int i = 0; i < one.Dendrites.Length; i++)
@@ -147,69 +130,30 @@ namespace FlappyBirdAI
             }
         }
 
-        public void Mutate(NeuralNetwork net, Random random, double mutationRate)
-        {
-            foreach (Layer layer in net.Layers)
-            {
-                foreach (Neuron neuron in layer.Neurons)
-                {
-                    for (int i = 0; i < neuron.Dendrites.Length; i++)
-                    {
-                        if (random.Next(2) == 0)
-                        {
-                            neuron.Dendrites[i].Weight += mutationRate;
-                        }
-                        else
-                        {
-                            neuron.Dendrites[i].Weight -= mutationRate; 
-                        }
-                    }
-
-                    if (random.Next(2) == 0)
-                    {
-                        neuron.Bias += mutationRate;
-                    }
-                    else
-                    {
-                        neuron.Bias -= mutationRate;
-                    }
-                }
-            }
-        }
-
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if(TestNetworks(gameTime))
+            for(int j = 0; j < speed; j++)
             {
-                Random random = new Random();
-                Array.Sort(birds, (a, b) => b.Fitness.CompareTo(a.Fitness));
-
-                int start = (int)(birds.Length * 0.1);
-                int end = (int)(birds.Length * 0.9);
-
-                for (int i = start; i < end; i++)
+                if (TestNetworks(gameTime))
                 {
-                    Crossover(birds[random.Next(start)].Network, birds[i].Network, random);
-                    Mutate(birds[i].Network, random, mutationRate);
-                }
-
-                for (int i = end; i < birds.Length; i++)
-                {
-                    birds[i].Network.Randomize(random, 0, 2);
-                }
-                ResetPipes();
-                for(int i = 0; i < birds.Length; i++)
-                {
-                    birds[i].Position = new Vector2(100, random.Next(50, 500));
-                    birds[i].ResetBird();
+                    trainer.Train(new Random());
+                    ResetPipes();
+                    ResetBirds();
                 }
             }
-            Window.Title = pipes[0].Position.X.ToString();
 
             base.Update(gameTime);
+        }
+
+        private void ResetBirds()
+        {
+            for (int i = 0; i < trainer.Networks.Length; i++)
+            {
+                trainer.Networks[i].Reset();
+            }
         }
 
         private void DrawPipes()
@@ -222,11 +166,11 @@ namespace FlappyBirdAI
 
         private void DrawBirds()
         {
-            for (int i = 0; i < birds.Length; i++)
+            for (int i = 0; i < trainer.Networks.Length; i++)
             {
-                if (!birds[i].isDead)
+                if (!trainer.Networks[i].isDead)
                 {
-                    birds[i].Draw(spriteBatch);
+                    trainer.Networks[i].Draw(spriteBatch);
                 }
             }
         }
