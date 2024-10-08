@@ -51,8 +51,8 @@ namespace FlappyBirdAI
 
         public override void Draw(SpriteBatch sp)
         {
-            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight), sourceRectangle, color, rotation, new Vector2(0, texture.Height), scale, SpriteEffects.None, 1);
-            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight + pipeGap), sourceRectangle, color, rotation, Vector2.Zero, scale, SpriteEffects.FlipVertically, 1);
+            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight), sourceRectangle, Color, rotation, new Vector2(0, texture.Height), scale, SpriteEffects.None, 1);
+            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight + pipeGap), sourceRectangle, Color, rotation, Vector2.Zero, scale, SpriteEffects.FlipVertically, 1);
         }
     }
 }

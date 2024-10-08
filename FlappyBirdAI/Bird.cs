@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using NeuralNetworkLibrary;
 
 namespace FlappyBirdAI
@@ -49,9 +50,16 @@ namespace FlappyBirdAI
                 jumpTimer += gameTime.ElapsedGameTime;
                 if (raw > 0 && jumpTimer.Milliseconds >= jumpInBetween.Milliseconds)
                 {
-                    yVelocity += jumpPower;
+                    yVelocity = jumpPower;
                     jumpTimer = TimeSpan.Zero;
                 }
+
+                //jumpTimer += gameTime.ElapsedGameTime;
+                //if (Keyboard.GetState().IsKeyDown(Keys.Space) && jumpTimer.Milliseconds >= jumpInBetween.Milliseconds)
+                //{
+                //    yVelocity = jumpPower;
+                //    jumpTimer = TimeSpan.Zero;
+                //}
 
                 yVelocity -= gravity;
                 Position = new Vector2(Position.X, Position.Y - yVelocity);
@@ -61,11 +69,12 @@ namespace FlappyBirdAI
                 if (Position.Y <= 0 || Position.Y > viewport.Height)
                 {
                     isDead = true;
-                    Fitness -= 1000;
+                    Fitness -= 750;
                 }
                 else if(pipe.BottomPipe.Intersects(Hitbox) || pipe.TopPipe.Intersects(Hitbox))
                 {
                     isDead = true;
+                    Fitness -= 100;
                 }
             }
         }

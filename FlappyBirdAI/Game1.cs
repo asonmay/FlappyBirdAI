@@ -54,13 +54,14 @@ namespace FlappyBirdAI
             Bird[] birds = new Bird[100];
             for(int i = 0; i < birds.Length; i++)
             {
-                birds[i] = new Bird(new NeuralNetwork(activationFunc, errorFunc, 2, 4, 1), new Vector2(100, random.Next(50,600)), 0.3f, birdTexture, 0, 0.4f, 8, TimeSpan.FromMilliseconds(250));
-                birds[i].Network.Randomize(random, 0, 2);
+                birds[i] = new Bird(new NeuralNetwork(activationFunc, errorFunc, 2, 4, 1), new Vector2(100, random.Next(50,600)), 0.3f, birdTexture, 0, 0.45f, 10, TimeSpan.FromMilliseconds(200));
+                birds[i].Network.Randomize(random, -5, 5);
             }
-            speed = 10;
-            mutationRate = 0.5;
+            
+            speed = 1;
+            mutationRate = 0.03;
 
-            trainer = new GeneticTrainer<Bird>(-10, 10,mutationRate, birds);
+            trainer = new GeneticTrainer<Bird>(-3, 3,mutationRate, birds);
         }
 
         private void ResetPipes()
@@ -68,8 +69,8 @@ namespace FlappyBirdAI
             Vector2 startingPos = new Vector2(GraphicsDevice.Viewport.Width, 0);
             pipes =
             [
-                new Pipe(startingPos, startingPos, 0.5f, pipeTexture, 4, 150, 400, 225, 0),
-                new Pipe(startingPos, new Vector2(startingPos.X * 1.5f + pipeTexture.Width / 4, 0), 0.5f, pipeTexture, 4, 150, 400, 225, 0)
+                new Pipe(startingPos, startingPos, 0.5f, pipeTexture, 6, 150, 400, 225, 0),
+                new Pipe(startingPos, new Vector2(startingPos.X * 1.5f + pipeTexture.Width / 4, 0), 0.5f, pipeTexture, 6, 150, 400, 225, 0)
             ];
         }
 
@@ -87,12 +88,20 @@ namespace FlappyBirdAI
             }
         }
 
+        private double GetNoramlizeValue(double min, double max, double nMin, double nMax, double current)
+        {
+            return (current - min) / (max - min) * (nMax - nMin) + nMin;
+        }
+
         private bool UpdateBirds(GameTime gametime)
         {
             for(int i = 0; i < trainer.Networks.Length; i++)
             {
                 Pipe pipe = GetClosestPipe(trainer.Networks[i]);
-                trainer.Networks[i].Update([Math.Abs(trainer.Networks[i].Position.X - pipe.Position.X), Math.Abs(pipe.YStartPos + pipe.BottomPipeHeight - trainer.Networks[i].Position.Y)], gametime, pipe, GraphicsDevice.Viewport);
+                Bird current = trainer.Networks[i];
+                double input1 = GetNoramlizeValue(0, pipe.BottomPipeHeight, -1, 1, Math.Abs(pipe.YStartPos + pipe.BottomPipeHeight - current.Position.Y + current.Hitbox.Height));
+                double input2 = GetNoramlizeValue(0, GraphicsDevice.Viewport.Width / 2, -1, 1, Math.Abs(current.Position.X + current.Hitbox.Width - pipe.Position.X));
+                trainer.Networks[i].Update([input1, input2], gametime, pipe, GraphicsDevice.Viewport);
             }
             return AreAllDead();
         }
@@ -145,6 +154,19 @@ namespace FlappyBirdAI
                 }
             }
 
+            if(Keyboard.GetState().IsKeyDown(Keys.D1))
+            {
+                speed = 1;
+            }
+            else if(Keyboard.GetState().IsKeyDown(Keys.D5))
+            {
+                speed = 5;
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.D9))
+            {
+                speed = 10;
+            }
+
             base.Update(gameTime);
         }
 
@@ -170,7 +192,10 @@ namespace FlappyBirdAI
             {
                 if (!trainer.Networks[i].isDead)
                 {
-                    trainer.Networks[i].Draw(spriteBatch);
+                    if(i < 100)
+                    {
+                        trainer.Networks[i].Draw(spriteBatch);
+                    }
                 }
             }
         }

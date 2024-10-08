@@ -10,13 +10,13 @@ namespace FlappyBirdAI
     {
         protected Texture2D texture;
         public Vector2 Position { get; set; }
-        protected Color color;
+        public Color Color;
         protected SpriteEffects effects;
         protected float scale;
         protected float rotation;
         protected Rectangle sourceRectangle;
         protected Vector2 origin;
-        protected Rectangle Hitbox
+        public Rectangle Hitbox
         {
             get
             {
@@ -28,7 +28,7 @@ namespace FlappyBirdAI
         {
             this.texture = texture;
             this.Position = position;
-            this.color = color;
+            this.Color = color;
             this.scale = scale;
             this.sourceRectangle = sourceRectangle;
             this.rotation = rotation;
@@ -38,7 +38,7 @@ namespace FlappyBirdAI
 
         public virtual void Draw(SpriteBatch sp)
         {
-            sp.Draw(texture, Position, sourceRectangle, color, rotation, origin, scale, effects, 1);
+            sp.Draw(texture, Position, sourceRectangle, Color, rotation, origin, scale, effects, 1);
         }
     }
 }
