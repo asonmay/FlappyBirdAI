@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlappyBirdAI", "FlappyBirdAI\FlappyBirdAI.csproj", "{44C41A9B-ECB7-4F1B-A4EF-7A415DAEAF7E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetworkLibrary", "..\..\Visual Studio 2022\Projects\NeuralNetworkLibrary\NeuralNetworkLibrary\NeuralNetworkLibrary.csproj", "{043F60F1-C397-4918-A7E1-94D184A1F6B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuralNetworkLibrary", "..\Neural\NeuralNetworkLibrary\NeuralNetworkLibrary.csproj", "{DDB4EBD0-2A1C-42B8-8B13-F758A9C92B52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{44C41A9B-ECB7-4F1B-A4EF-7A415DAEAF7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44C41A9B-ECB7-4F1B-A4EF-7A415DAEAF7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44C41A9B-ECB7-4F1B-A4EF-7A415DAEAF7E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{043F60F1-C397-4918-A7E1-94D184A1F6B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{043F60F1-C397-4918-A7E1-94D184A1F6B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{043F60F1-C397-4918-A7E1-94D184A1F6B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{043F60F1-C397-4918-A7E1-94D184A1F6B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDB4EBD0-2A1C-42B8-8B13-F758A9C92B52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDB4EBD0-2A1C-42B8-8B13-F758A9C92B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDB4EBD0-2A1C-42B8-8B13-F758A9C92B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDB4EBD0-2A1C-42B8-8B13-F758A9C92B52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

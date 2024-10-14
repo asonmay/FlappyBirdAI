@@ -54,7 +54,7 @@ namespace FlappyBirdAI
             Bird[] birds = new Bird[100];
             for(int i = 0; i < birds.Length; i++)
             {
-                birds[i] = new Bird(new NeuralNetwork(activationFunc, errorFunc, 2, 4, 1), new Vector2(100, random.Next(50,600)), 0.3f, birdTexture, 0, 0.45f, 10, TimeSpan.FromMilliseconds(200));
+                birds[i] = new Bird(new NeuralNetwork(activationFunc, errorFunc, 2, 4, 1), new Vector2(100, random.Next(50,600)), 0.3f, birdTexture, 0, 0.7f, 10, TimeSpan.FromMilliseconds(200));
                 birds[i].Network.Randomize(random, -5, 5);
             }
             
@@ -69,8 +69,8 @@ namespace FlappyBirdAI
             Vector2 startingPos = new Vector2(GraphicsDevice.Viewport.Width, 0);
             pipes =
             [
-                new Pipe(startingPos, startingPos, 0.5f, pipeTexture, 6, 150, 400, 225, 0),
-                new Pipe(startingPos, new Vector2(startingPos.X * 1.5f + pipeTexture.Width / 4, 0), 0.5f, pipeTexture, 6, 150, 400, 225, 0)
+                new Pipe(startingPos, startingPos, 0.5f, pipeTexture, 5, 75, 300, 240),
+                new Pipe(startingPos, new Vector2(startingPos.X * 1.5f + pipeTexture.Width / 4, 0), 0.5f, pipeTexture, 5, 75, 300, 240)
             ];
         }
 

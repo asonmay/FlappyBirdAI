@@ -12,26 +12,27 @@ namespace FlappyBirdAI
     {
         public float BottomPipeHeight { get; private set; }
         public float YStartPos { get; private set; }
-
-        private readonly float pipeGap;
-        private readonly float speed;
-        private Vector2 startingPos;
         public Rectangle BottomPipe { get; private set; }
         public Rectangle TopPipe { get; private set; }
 
-        public Pipe(Vector2 startPos, Vector2 position, float scale, Texture2D texture, float speed, int pipeHeightMin, int pipeHeightMax, int gap, float yStartPos)
+        private readonly float pipeGap;
+        private readonly float speed;
+        private readonly int pipeHeightMin;
+        private readonly int pipeHeightMax;
+        private Vector2 startingPos;
+
+        public Pipe(Vector2 startPos, Vector2 position, float scale, Texture2D texture, float speed, int pipeHeightMin, int pipeHeightMax, int gap)
             : base(texture, position, Color.White, SpriteEffects.None, scale, 0, new Rectangle(0, 0, texture.Width, texture.Height), Vector2.Zero)
         {
             this.speed = speed;
-            RandomizePipe(pipeHeightMin, pipeHeightMax, gap);
             pipeGap = gap;
-            YStartPos = yStartPos;
             startingPos = startPos;
-            BottomPipe = new Rectangle((int)position.X, (int)(YStartPos + BottomPipeHeight - (texture.Height * scale)), (int)(texture.Width * scale), (int)(texture.Height * scale));
-            TopPipe = new Rectangle((int)position.X, (int)(YStartPos + BottomPipeHeight + pipeGap), (int)(texture.Width * scale), (int)(texture.Height * scale));
+            this.pipeHeightMin = pipeHeightMin;
+            this.pipeHeightMax = pipeHeightMax;
+            RandomizePipe();
         }
 
-        private void RandomizePipe(int pipeHeightMin, int pipeHeightMax, int gap)
+        private void RandomizePipe()
         {
             Random random = new Random();
             BottomPipeHeight = random.Next(pipeHeightMin, pipeHeightMax);
@@ -40,19 +41,20 @@ namespace FlappyBirdAI
         public void Update()
         {
             Position = new Vector2(Position.X - speed, Position.Y);
-            BottomPipe = new Rectangle((int)Position.X, (int)(YStartPos + BottomPipeHeight - (texture.Height * scale)), (int)(texture.Width * scale), (int)(texture.Height * scale));
-            TopPipe = new Rectangle((int)Position.X, (int)(YStartPos + BottomPipeHeight + pipeGap), (int)(texture.Width * scale), (int)(texture.Height * scale));
+            BottomPipe = new Rectangle((int)Position.X, (int)(BottomPipeHeight - (texture.Height * scale)), (int)(texture.Width * scale), (int)(texture.Height * scale));
+            TopPipe = new Rectangle((int)Position.X, (int)(BottomPipeHeight + pipeGap), (int)(texture.Width * scale), (int)(texture.Height * scale));
 
             if (Position.X + (texture.Width * scale) < 0)
             {
+                RandomizePipe();
                 Position = startingPos;
             }
         }
 
         public override void Draw(SpriteBatch sp)
         {
-            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight), sourceRectangle, Color, rotation, new Vector2(0, texture.Height), scale, SpriteEffects.None, 1);
-            sp.Draw(texture, new Vector2(Position.X, YStartPos + BottomPipeHeight + pipeGap), sourceRectangle, Color, rotation, Vector2.Zero, scale, SpriteEffects.FlipVertically, 1);
+            sp.Draw(texture, new Vector2(Position.X, BottomPipeHeight), sourceRectangle, Color, rotation, new Vector2(0, texture.Height), scale, SpriteEffects.None, 1);
+            sp.Draw(texture, new Vector2(Position.X, BottomPipeHeight + pipeGap), sourceRectangle, Color, rotation, Vector2.Zero, scale, SpriteEffects.FlipVertically, 1);
         }
     }
 }
